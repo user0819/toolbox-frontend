@@ -18,6 +18,7 @@
 <script>
 import axios from 'axios';
 import { BTabs, BTab } from 'bootstrap-vue';
+import config from '@/config'; // 引入配置文件
 
 export default {
   components: {
@@ -27,20 +28,22 @@ export default {
   data() {
     return {
       categories: [],
-      detailsByCategory: {}
+      detailsByCategory: {},
+      apiBaseUrl: ''
     };
   },
-  created() {
+  async created() {
+    this.apiBaseUrl = config.API_BASE_URL;
     this.fetchCategories();
   },
   methods: {
     async fetchCategories() {
-      const response = await axios.get('http://localhost:8080/api/categories');
+      const response = await axios.get(`${this.apiBaseUrl}/api/categories`); // 使用配置中的基础 URL
       this.categories = response.data;
       this.categories.forEach(category => this.fetchDetails(category.id));
     },
     async fetchDetails(categoryId) {
-      const response = await axios.get(`http://localhost:8080/api/details/category/${categoryId}`);
+      const response = await axios.get(`${this.apiBaseUrl}/api/details/category/${categoryId}`); // 使用配置中的基础 URL
       this.$set(this.detailsByCategory, categoryId, response.data);
     }
   }
