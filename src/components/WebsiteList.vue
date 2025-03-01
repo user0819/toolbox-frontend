@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h1>Toolbox</h1>
+    <h1>ToolBox</h1>
     <b-tabs content-class="mt-3">
       <b-tab v-for="category in categories" :key="category.id" :title="category.name">
         <div class="website-row">
-          <div v-for="detail in detailsByCategory[category.id]" :key="detail.id" class="website-card">
+          <div v-for="detail in detailsByCategory[category.id]" :key="detail.id" class="website-card" @click="openWebsite(detail.url)" style="cursor: pointer;" :title="detail.name">
             <h3 class="text-truncate" :title="detail.name">{{ detail.name }}</h3>
             <a :href="detail.url" target="_blank" class="text-truncate" :title="detail.url">{{ detail.url }}</a>
             <p class="text-truncate" :title="detail.description">{{ detail.description }}</p>
@@ -17,7 +17,7 @@
 
 <script>
 import axios from 'axios';
-import {BTabs, BTab} from 'bootstrap-vue';
+import { BTabs, BTab } from 'bootstrap-vue';
 import config from '@/config';
 
 export default {
@@ -45,6 +45,9 @@ export default {
     async fetchDetails(categoryId) {
       const response = await axios.get(`${this.apiBaseUrl}/api/details/category/${categoryId}`);
       this.$set(this.detailsByCategory, categoryId, response.data);
+    },
+    openWebsite(url) {
+      window.open(url, '_blank');
     }
   }
 };
@@ -104,10 +107,17 @@ h1::after {
   background-color: #e3f2fd;
 }
 
-h3, a, p {
+.website-card [title]:hover {
+  font-style: italic;
+  font-weight: bold;
+  color: #3e4c59;
+  text-decoration: underline;
+}
+
+h3 {
   color: #3e4c59;
   font-size: 1.3rem;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -118,11 +128,10 @@ a {
   color: #80e27e;
   text-decoration: none;
   display: inline-block;
-  padding: 6px 12px;
+  margin: 0px 1em;
   border-radius: 6px;
   background: #e8f7f1;
   transition: all 0.2s;
-  margin-bottom: 15px;
 }
 
 a:hover {
@@ -135,6 +144,9 @@ p {
   color: #6c757d;
   font-size: 0.95rem;
   line-height: 1.6;
-  margin: 10px 0;
+  margin: 0px 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
