@@ -18,7 +18,6 @@
 <script>
 import axios from 'axios';
 import { BTabs, BTab } from 'bootstrap-vue';
-import config from '@/config';
 
 export default {
   components: {
@@ -28,22 +27,20 @@ export default {
   data() {
     return {
       categories: [],
-      detailsByCategory: {},
-      apiBaseUrl: ''
+      detailsByCategory: {}
     };
   },
   async created() {
-    this.apiBaseUrl = config.API_BASE_URL;
     this.fetchCategories();
   },
   methods: {
     async fetchCategories() {
-      const response = await axios.get(`${this.apiBaseUrl}/api/categories`);
+      const response = await axios.get('/api/categories'); // 代理请求
       this.categories = response.data;
       this.categories.forEach(category => this.fetchDetails(category.id));
     },
     async fetchDetails(categoryId) {
-      const response = await axios.get(`${this.apiBaseUrl}/api/details/category/${categoryId}`);
+      const response = await axios.get(`/api/details/category/${categoryId}`); // 代理请求
       this.$set(this.detailsByCategory, categoryId, response.data);
     },
     openWebsite(url) {
