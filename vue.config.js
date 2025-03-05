@@ -5,13 +5,13 @@ module.exports = {
   },
   devServer: {
     proxy: {
-      '/api': {
+      '/proxy': {
         target: process.env.VUE_APP_API_BASE_URL,
-        //pathRewrite: { '^/api': '' },
+        pathRewrite: { '^/proxy': '' },
         changeOrigin: true,
         secure: false // 添加以支持 HTTPS
       }
     }
   },
-    publicPath: process.env.VUE_APP_PUBLIC_PATH || '/'
+  publicPath: process.env.VUE_APP_PUBLIC_PATH || '/'
 };

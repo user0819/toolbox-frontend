@@ -35,12 +35,12 @@ export default {
   },
   methods: {
     async fetchCategories() {
-      const response = await axios.get('/api/categories'); // 代理请求
+      const response = await axios.get(process.env.VUE_APP_BASE_API + `/api/categories`); // 代理请求
       this.categories = response.data;
       this.categories.forEach(category => this.fetchDetails(category.id));
     },
     async fetchDetails(categoryId) {
-      const response = await axios.get(`/api/details/category/${categoryId}`); // 代理请求
+      const response = await axios.get(process.env.VUE_APP_BASE_API + `/api/details/category/${categoryId}`); // 代理请求
       this.$set(this.detailsByCategory, categoryId, response.data);
     },
     openWebsite(url) {
