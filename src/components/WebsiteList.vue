@@ -24,14 +24,13 @@
               <p class="text-truncate" :title="detail.description">{{ detail.description }}</p>
             </div>
           </div>
-          <div class="website-card add-card" @click="addWebsite(category.id)" :data-id='add'>
-<!--            <div v-if="editingId === detail.id" @click.stop>-->
-<!--              <input v-model="editingItem.name" placeholder="Name" />-->
-<!--              <input v-model="editingItem.url" placeholder="URL" />-->
-<!--              <input v-model="editingItem.description" placeholder="Description" />-->
-<!--            </div>-->
-<!--            <div v-else class="add-icon">+</div>-->
-            <div class="add-icon">+</div>
+          <div class="website-card add-card" @click="addWebsite(category.id)" data-id="add">
+            <div v-if="editingId === 'add'" @click.stop>
+              <input v-model="editingItem.name" placeholder="Name" />
+              <input v-model="editingItem.url" placeholder="URL" />
+              <input v-model="editingItem.description" placeholder="Description" />
+            </div>
+            <div v-else class="add-icon">+</div>
           </div>
         </div>
       </b-tab>
@@ -99,11 +98,19 @@ export default {
     },
     async addWebsite(categoryId) {
       this.editingId = 'add';
-      this.editingItem = { name: '请输入名称', url: '请输入链接', description: '请输入描述', categoryId };
+      this.editingItem = { name: '请输入名称', url: '请输入链接', description: '请输入描述', categoryId, sort:100 };
+      this.$nextTick(() => {
+        const card = this.$el.querySelector(`[data-id="add"]`);
+        if (card) card.classList.add('editing');
+      });
     },
     async saveWebsite() {
       if (this.editingId === 'add') {
-        await axios.post(`${process.env.VUE_APP_BASE_API}/api/details`, this.editingItem);
+        if (!this.editingItem.name || !this.editingItem.url) {
+          alert('请填写名称和URL');
+          return;
+        }
+        await axios.post(`${process.env.VUE_APP_BASE_API}/api/details/`, this.editingItem);
       } else {
         await axios.put(`${process.env.VUE_APP_BASE_API}/api/details/${this.editingId}`, this.editingItem);
       }
