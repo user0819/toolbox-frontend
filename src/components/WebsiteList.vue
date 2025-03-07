@@ -5,9 +5,8 @@
       <b-tab v-for="category in categories" :key="category.id" :title="category.name">
         <draggable class="website-row" v-model="detailsByCategory[category.id]" @end="onDragEnd(category.id)"
                    :move="checkMove">
-          <div v-for="(detail, index) in detailsByCategory[category.id]" :key="detail.id" :data-id="detail.id"
-               class="website-card" @click.self="openWebsite(detail.url)" style="cursor: pointer;" :title="detail.name"
-               :draggable="index !== detailsByCategory[category.id].length - 1">
+          <div v-for="(detail) in detailsByCategory[category.id]" :key="detail.id" :data-id="detail.id"
+               class="website-card" @click="openWebsite(detail.url)" style="cursor: pointer;" :title="detail.name" >
             <div class="menu" @mouseenter="showMenu(detail.id)" @mouseleave="hideMenu(detail.id)">
               <div v-if="activeMenu === detail.id" class="menu-icons">
                 <span @click.stop="editWebsite(detail)">✏️</span>
