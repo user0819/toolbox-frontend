@@ -3,20 +3,22 @@
     <h1>ToolBox</h1>
     <b-tabs content-class="mt-3">
       <b-tab v-for="category in categories" :key="category.id" :title="category.name">
-        <div class="website-row">
-          <div v-for="detail in detailsByCategory[category.id]" :key="detail.id" :data-id="detail.id" class="website-card" @click.self="openWebsite(detail.url)" style="cursor: pointer;" :title="detail.name">
+        <draggable class="website-row" v-model="detailsByCategory[category.id]" @end="onDragEnd(category.id)"
+                   :move="checkMove">
+          <div v-for="(detail, index) in detailsByCategory[category.id]" :key="detail.id" :data-id="detail.id"
+               class="website-card" @click.self="openWebsite(detail.url)" style="cursor: pointer;" :title="detail.name"
+               :draggable="index !== detailsByCategory[category.id].length - 1">
             <div class="menu" @mouseenter="showMenu(detail.id)" @mouseleave="hideMenu(detail.id)">
               <div v-if="activeMenu === detail.id" class="menu-icons">
-                <span @click.stop="editWebsite(detail)" >✏️</span>
+                <span @click.stop="editWebsite(detail)">✏️</span>
                 <span @click.stop="deleteWebsite(detail.id, category.id)">🗑️</span>
               </div>
-
               <span v-else class="menu-hide">...</span>
             </div>
             <div v-if="editingId === detail.id" @click.stop>
-              <input v-model="editingItem.name" placeholder="Name" />
-              <input v-model="editingItem.url" placeholder="URL" />
-              <input v-model="editingItem.description" placeholder="Description" />
+              <input v-model="editingItem.name" placeholder="Name"/>
+              <input v-model="editingItem.url" placeholder="URL"/>
+              <input v-model="editingItem.description" placeholder="Description"/>
             </div>
             <div v-else>
               <h3 class="text-truncate" :title="detail.name">{{ detail.name }}</h3>
@@ -24,26 +26,30 @@
               <p class="text-truncate" :title="detail.description">{{ detail.description }}</p>
             </div>
           </div>
-          <div class="website-card add-card" @click="addWebsite(category.id)" data-id="add">
+          <div class="website-card add-card" @click="addWebsite(category.id)" key="add" data-id="add"
+               :draggable="false">
             <div v-if="editingId === 'add'" @click.stop>
-              <input v-model="editingItem.name" placeholder="Name" />
-              <input v-model="editingItem.url" placeholder="URL" />
-              <input v-model="editingItem.description" placeholder="Description" />
+              <input v-model="editingItem.name" placeholder="Name"/>
+              <input v-model="editingItem.url" placeholder="URL"/>
+              <input v-model="editingItem.description" placeholder="Description"/>
+              <button @click="saveWebsite">保存</button>
             </div>
             <div v-else class="add-icon">+</div>
           </div>
-        </div>
+        </draggable>
       </b-tab>
     </b-tabs>
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
-import { BTabs, BTab } from 'bootstrap-vue';
+import {BTab, BTabs} from 'bootstrap-vue';
+import draggable from 'vuedraggable';
 
 export default {
-  components: { BTabs, BTab },
+  components: {BTabs, BTab, draggable},
   data() {
     return {
       categories: [],
@@ -75,18 +81,18 @@ export default {
     hideMenu() {
       this.activeMenu = null;
     },
-    // 新增处理外部点击的方法
     handleClickOutside(event) {
-      // 获取当前编辑的卡片元素
       const card = this.$el.querySelector('.website-card.editing');
       if (card && !card.contains(event.target)) {
         this.saveWebsite();
       }
     },
-    // 修改进入编辑模式的方法，添加标记类
-    editWebsite(detail) {
+    checkMove(e) {
+      return e.dragged.dataset.id !== 'add';
+    },
+    async editWebsite(detail) {
       this.editingId = detail.id;
-      this.editingItem = { ...detail };
+      this.editingItem = {...detail};
       this.$nextTick(() => {
         const card = this.$el.querySelector(`[data-id="${detail.id}"]`);
         if (card) card.classList.add('editing');
@@ -98,7 +104,7 @@ export default {
     },
     async addWebsite(categoryId) {
       this.editingId = 'add';
-      this.editingItem = { name: '请输入名称', url: '请输入链接', description: '请输入描述', categoryId, sort:100 };
+      this.editingItem = {name: '请输入名称', url: '请输入链接', description: '请输入描述', categoryId, sort: 100};
       this.$nextTick(() => {
         const card = this.$el.querySelector(`[data-id="add"]`);
         if (card) card.classList.add('editing');
@@ -117,15 +123,20 @@ export default {
       await this.fetchDetails(this.editingItem.categoryId);
       this.editingId = null;
       this.editingItem = {};
-      // ...保存逻辑不变
       const card = this.$el.querySelector('.editing');
       if (card) card.classList.remove('editing');
+    },
+    async onDragEnd(categoryId) {
+      const details = this.detailsByCategory[categoryId];
+      for (let i = 0; i < details.length; i++) {
+        details[i].sort = i + 1;
+      }
+      await axios.put(`${process.env.VUE_APP_BASE_API}/api/details/sort`, details);
     }
   },
   watch: {
     editingId(val) {
       if (val !== null) {
-        // 使用setTimeout确保DOM更新后绑定事件
         this.$nextTick(() => {
           window.addEventListener('click', this.handleClickOutside);
         });
@@ -264,10 +275,10 @@ p {
   margin-left: 10px;
   cursor: pointer;
 }
-input {
-  border: none;      /* 隐藏边框 */
-  background-color: transparent; /* 设置背景为透明 */
-  outline: none;     /* 移除聚焦时的轮廓 */
-}
 
+input {
+  border: none;
+  background-color: transparent;
+  outline: none;
+}
 </style>
