@@ -54,7 +54,7 @@ export default {
     };
   },
   async created() {
-    this.fetchCategories();
+    await this.fetchCategories();
   },
   methods: {
     async fetchCategories() {
@@ -94,7 +94,7 @@ export default {
     },
     async deleteWebsite(id, categoryId) {
       await axios.delete(`${process.env.VUE_APP_BASE_API}/api/details/${id}`);
-      this.fetchDetails(categoryId);
+      await this.fetchDetails(categoryId);
     },
     async addWebsite(categoryId) {
       this.editingId = 'add';
@@ -114,7 +114,7 @@ export default {
       } else {
         await axios.put(`${process.env.VUE_APP_BASE_API}/api/details/${this.editingId}`, this.editingItem);
       }
-      this.fetchDetails(this.editingItem.categoryId);
+      await this.fetchDetails(this.editingItem.categoryId);
       this.editingId = null;
       this.editingItem = {};
       // ...保存逻辑不变
@@ -212,7 +212,7 @@ a {
   color: #80e27e;
   text-decoration: none;
   display: inline-block;
-  margin: 0px 1em;
+  margin: 0 1em;
   border-radius: 6px;
   background: #e8f7f1;
   transition: all 0.2s;
@@ -228,7 +228,7 @@ p {
   color: #6c757d;
   font-size: 0.95rem;
   line-height: 1.6;
-  margin: 0px 1em;
+  margin: 0 1em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
